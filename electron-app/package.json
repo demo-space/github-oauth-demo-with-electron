@@ -1,0 +1,25 @@
+{
+  "name": "github-oauth-demo",
+  "version": "1.0.0",
+  "description": "GitHub OAuth demo with Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "repository": "https://github.com/hanzichi/github-oauth-demo-with-electron",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "GitHub",
+  "devDependencies": {
+    "electron": "^2.0.0"
+  },
+  "dependencies": {
+    "node-fetch": "^2.2.0"
+  }
+}

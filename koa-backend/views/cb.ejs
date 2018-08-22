@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>GitHub OAuth demo</title>
+  </head>
+  <body>
+  <script>
+    // 回调的 url 中获取 code 参数
+    const code = location.search.replace(/\?code\=/, '')
+
+    // code 换取 token，存入本地
+    fetch("/api/sendbackCode",{
+      method:'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        code
+      })
+    })
+    .then(res => res.json())
+    .then(res => {
+      location.href = `/app?token=${res.data}`
+    })
+    .catch(error => {
+      alert(error)
+    })
+  </script>
+  </body>
+</html>
