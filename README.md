@@ -1,6 +1,6 @@
 # GitHub OAuth demo with Electron
 
-首先启动后端服务（注意 3000 端口不能被其他服务占用）：
+首先启动后端服务（**注意 3000 端口不能被其他服务占用**）：
 
 ```bash
 cd koa-backend

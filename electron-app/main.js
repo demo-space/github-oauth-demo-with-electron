@@ -2,6 +2,12 @@
 const {app, BrowserWindow, ipcMain} = require('electron')
 const fetch = require('node-fetch')
 const {URL} = require('url')
+const querystring = require('querystring')
+
+var options = {
+  client_id: 'a3144def15f37b5cdf23',
+  client_secret: '830c6e28a14dd5c355876731f51512f53cf49389'
+}
 
 // 来自 index.html，打开 oauth 窗口
 ipcMain.on('no-token', function(event) {
@@ -9,31 +15,9 @@ ipcMain.on('no-token', function(event) {
 })
 
 // 来自 auth.html，打开 oauth url
-ipcMain.on('oauth-login', function(event) {
-  const authUrl = 'https://github.com/login/oauth/authorize?client_id=a3144def15f37b5cdf23'
-
+ipcMain.on('oauth-login', function (event) {
+  const authUrl = `https://github.com/login/oauth/authorize?client_id=${options.client_id}`
   authWindow.loadURL(authUrl);
-  
-  // 监听 url 变化
-  authWindow.webContents.on('will-navigate', function (event, newUrl) {
-    console.log(newUrl);
-
-    // 进入页面 http://localhost:3000/app?token=xxxxxxxxxxxxxx
-    if (newUrl.includes('token')) {
-      const token = new URL(newUrl).searchParams.get('token')
-
-      console.log(token)
-
-      // Open the DevTools.
-      // mainWindow.webContents.openDevTools()
-
-      // 将 token 回传到 index.html
-      mainWindow.webContents.send('send-token', token)
-
-      // 关闭 authWindow
-      authWindow.close()
-    }
-  })
 })
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -59,10 +43,46 @@ function createWindow () {
 function createAuthWindow() {
   authWindow = new BrowserWindow({
     width: 400,
-    height: 600
+    height: 600,
+    'node-integration': false
   })
   
   authWindow.loadFile('auth.html')
+
+  // 监听 url 变化
+  authWindow.webContents.on('did-get-redirect-request', function (event, oldUrl, url) {
+    // 进入页面 http://localhost:3000/cb?code=xxxxxxxxxxxxxx
+    if (url.includes('code')) {
+      const code = new URL(url).searchParams.get('code')
+
+      // code 换取 token
+      const params = {
+        code, client_id: options.client_id, client_secret: options.client_secret
+      }
+
+      fetch('https://github.com/login/oauth/access_token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(params)
+      })
+      .then(res => {
+        res.text().then(res => {
+          let token = querystring.parse(res).access_token
+
+          // 将 token 回传到 index.html
+          mainWindow.webContents.send('send-token', token)
+          
+          // 关闭 authWindow
+          authWindow.close()
+        })
+      })
+      .catch(e => {
+        console.log(e);
+      })
+    }
+  })
 
   authWindow.on('closed', function () {
     authWindow = null;

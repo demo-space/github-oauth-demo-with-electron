@@ -5,11 +5,9 @@
     <title>GitHub OAuth</title>
   </head>
   <body>
-    <!-- 貌似不能直接打开 a 标签，改为 js 事件 -->
     <a href="javascript:;" id="auth-btn">用 GitHub 登录</a>
     <script>
-      const ipcRenderer = require('electron').ipcRenderer
-
+      const {ipcRenderer} = require('electron')
       document.querySelector('#auth-btn').onclick = () => {
         ipcRenderer.send('oauth-login')
       }

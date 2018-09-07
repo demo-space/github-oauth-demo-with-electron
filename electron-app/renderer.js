@@ -27,6 +27,7 @@ function getUserInfo(token) {
     console.log(res)
 
     // token 过期
+    // 这部分应该后端返回 token 过期数据，因为是 demo，没做完善
     if (res.data.message === 'Bad credentials') {
       localStorage.removeItem('token')
       location.reload()
